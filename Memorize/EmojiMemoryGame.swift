@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 class EmojiMemoryGame: ObservableObject {
+    typealias Card = MemoryGame<String>.Card
     private static var theme = "default" {
         willSet {
             switch newValue {
@@ -44,7 +45,7 @@ class EmojiMemoryGame: ObservableObject {
     private static let defaultEmojis = ["💕", "💠", "🪿", "🐣", "🦀", "🍉", "🦋", "🌪️", "🍒","🐝"]
     
     private static func createMemoryGame() -> MemoryGame<String> {
-        return MemoryGame(numberOfPairs: 10) { pairIndex in
+        return MemoryGame(numberOfPairs: 2) { pairIndex in
             if let randomIndex = emojis.indices.randomElement() {
                 return emojis.remove(at: randomIndex)
             } else {
@@ -59,7 +60,7 @@ class EmojiMemoryGame: ObservableObject {
         return model.score
     }
     
-    var cards: Array<MemoryGame<String>.Card> {
+    var cards: Array<Card> {
         return model.cards
     }
     
@@ -68,7 +69,7 @@ class EmojiMemoryGame: ObservableObject {
         model.shuffle()
     }
     
-    func choose(_ card: MemoryGame<String>.Card) {
+    func choose(_ card: Card) {
         model.choose(card)
     }
     
