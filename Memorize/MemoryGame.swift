@@ -18,8 +18,11 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         
         for pairIndex in 0..<max(2, numberOfPairs) {
             let content = cardContentFactory(pairIndex)
-            cards.append(Card(content: content, id: "\(pairIndex+1)a"))
-            cards.append(Card(content: content, id: "\(pairIndex+1)b"))
+            let id = UUID().uuidString
+//            cards.append(Card(content: content, id: "\(pairIndex+1)a"))
+            cards.append(Card(content: content, id: "\(id)a"))
+//            cards.append(Card(content: content, id: "\(pairIndex+1)b"))
+            cards.append(Card(content: content, id: "\(id)b"))
         }
     }
     
@@ -35,7 +38,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                     if cards[chosenIndex].content == cards[potentialMatchIndex].content {
                         cards[chosenIndex].isMatched = true
                         cards[potentialMatchIndex].isMatched = true
-                        score += 2
+                        score += 2 + cards[chosenIndex].bonus + cards[potentialMatchIndex].bonus
                     } else {
                         score -= cards[chosenIndex].hasBeenSeen ? 1 : 0
                         score -= cards[potentialMatchIndex].hasBeenSeen ? 1 : 0
@@ -46,8 +49,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                 
                 cards[chosenIndex].isFaceUp = true
             }
-            
-            
         }
     }
     
@@ -58,12 +59,23 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     struct Card: Equatable, Identifiable {
         var isFaceUp: Bool = false {
             didSet {
+                if isFaceUp {
+                    startUsingBonusTime()
+                } else {
+                    stopUsingBonusTime()
+                }
                 if oldValue && !isFaceUp {
                     hasBeenSeen = true
                 }
             }
         }
-        var isMatched: Bool = false
+        var isMatched: Bool = false {
+            didSet {
+                if isMatched {
+                    stopUsingBonusTime()
+                }
+            }
+        }
         var hasBeenSeen: Bool = false
         var content: CardContent
         
@@ -71,6 +83,39 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         var debugDescription: String {
             return "\(id): \(content) \(isFaceUp ? "up" : "down") \(isMatched ? "matched" : "")"
         }
+        
+        private mutating func startUsingBonusTime() {
+            if isFaceUp && !isMatched && bonusPercentRemaining > 0, lastFaceUpDate == nil {
+                lastFaceUpDate = Date()
+            }
+        }
+        
+        private mutating func stopUsingBonusTime() {
+            pastFaceUpTime = faceUpTime
+            lastFaceUpDate = nil
+        }
+        
+        var bonus: Int {
+            Int(bonusTimeLimit * bonusPercentRemaining)
+        }
+        
+        var bonusPercentRemaining: Double {
+            bonusTimeLimit > 0 ? max(0, bonusTimeLimit - faceUpTime)/bonusTimeLimit : 0
+        }
+        
+        var faceUpTime: TimeInterval {
+            if let lastFaceUpDate {
+                return pastFaceUpTime + Date().timeIntervalSince(lastFaceUpDate)
+            } else {
+                return pastFaceUpTime
+            }
+        }
+        
+        var bonusTimeLimit: TimeInterval = 6
+        
+        var lastFaceUpDate: Date?
+        
+        var pastFaceUpTime: TimeInterval = 0
     }
 }
 

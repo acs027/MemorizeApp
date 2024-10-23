@@ -71,6 +71,7 @@ class EmojiMemoryGame: ObservableObject {
     
     func choose(_ card: Card) {
         model.choose(card)
+        print(card.content, card.id)
     }
     
     func getTheme() -> String {
