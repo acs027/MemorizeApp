@@ -19,11 +19,10 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
         for pairIndex in 0..<max(2, numberOfPairs) {
             let content = cardContentFactory(pairIndex)
             let id = UUID().uuidString
-//            cards.append(Card(content: content, id: "\(pairIndex+1)a"))
             cards.append(Card(content: content, id: "\(id)a"))
-//            cards.append(Card(content: content, id: "\(pairIndex+1)b"))
             cards.append(Card(content: content, id: "\(id)b"))
         }
+        cards.shuffle()
     }
     
     var indexOfTheOneAndOnlyFaceUpCard: Int? {

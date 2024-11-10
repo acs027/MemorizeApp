@@ -19,28 +19,21 @@ struct EmojiMemoryGameView: View {
     
     var body: some View {
         VStack {
-            HStack {
-                theme
-                Spacer()
-                newGame
-            }
-            cards.foregroundColor(viewModel.themeColor())
+            cards.foregroundColor(Color(rgba: viewModel.themeColor))
             HStack {
                 score
                 Spacer()
-                deck.foregroundStyle(viewModel.themeColor())
+//                deck.foregroundStyle(Color(rgba: viewModel.themeColor))
                 Spacer()
-                shuffle
+//                shuffle
             }
             .font(.title)
         }
         .padding()
-    }
-    
-    private var theme: some View {
-        Text(viewModel.getTheme())
-            .font(.title)
-            .foregroundStyle(viewModel.themeColor())
+        .navigationTitle(viewModel.themeName)
+        .toolbar {
+            newGame
+        }
     }
     
     private var score: some View {
@@ -48,13 +41,13 @@ struct EmojiMemoryGameView: View {
             .animation(nil)
     }
     
-    private var shuffle: some View {
-        Button("Shuffle") {
-            withAnimation {
-                viewModel.shuffle()
-            }
-        }
-    }
+//    private var shuffle: some View {
+//        Button("Shuffle") {
+//            withAnimation {
+//                viewModel.shuffle()
+//            }
+//        }
+//    }
     
     private var newGame: some View {
         Button("New Game") {
@@ -64,9 +57,9 @@ struct EmojiMemoryGameView: View {
     
     private var cards: some View {
         AspectVGrid(viewModel.cards, aspectRatio: aspectRatio) { card in
-            if isDealt(card) {
+//            if isDealt(card) {
                 CardView(card)
-                    .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
+//                    .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
                     .transition(.asymmetric(insertion: .identity, removal: .identity))
                     .padding(spacing)
                     .overlay(FlyingNumber(number: scoreChange(causedBy: card)))
@@ -74,44 +67,44 @@ struct EmojiMemoryGameView: View {
                     .onTapGesture {
                         choose(card)
                     }
-            }
+//            }
         }
     }
     
-    @State private var dealt = Set<Card.ID>()
+//    @State private var dealt = Set<Card.ID>()
+//    
+//    private func isDealt(_ card: Card) -> Bool {
+//        dealt.contains(card.id)
+//    }
+//    private var undealtCards: [Card] {
+//        viewModel.cards.filter { !isDealt($0) }
+//    }
+//    
+//    @Namespace private var dealingNameSpace
+//    
+//    private var deck: some View {
+//        ZStack {
+//            ForEach(undealtCards) { card in
+//                CardView(card)
+//                    .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
+//                    .transition(.asymmetric(insertion: .identity, removal: .identity))
+//            }
+//        }
+//        .frame(width: deckWidth, height: deckWidth / aspectRatio)
+//        .onTapGesture {
+//            deal()
+//        }
+//    }
     
-    private func isDealt(_ card: Card) -> Bool {
-        dealt.contains(card.id)
-    }
-    private var undealtCards: [Card] {
-        viewModel.cards.filter { !isDealt($0) }
-    }
-    
-    @Namespace private var dealingNameSpace
-    
-    private var deck: some View {
-        ZStack {
-            ForEach(undealtCards) { card in
-                CardView(card)
-                    .matchedGeometryEffect(id: card.id, in: dealingNameSpace)
-                    .transition(.asymmetric(insertion: .identity, removal: .identity))
-            }
-        }
-        .frame(width: deckWidth, height: deckWidth / aspectRatio)
-        .onTapGesture {
-            deal()
-        }
-    }
-    
-    private func deal() {
-        var delay: TimeInterval = 0
-        for card in viewModel.cards {
-            withAnimation(dealAnimation.delay(delay)) {
-                _ = dealt.insert(card.id)
-            }
-            delay += dealInterval
-        }
-    }
+//    private func deal() {
+//        var delay: TimeInterval = 0
+//        for card in viewModel.cards {
+//            withAnimation(dealAnimation.delay(delay)) {
+//                _ = dealt.insert(card.id)
+//            }
+//            delay += dealInterval
+//        }
+//    }
     
     private func choose(_ card: Card) {
         withAnimation {
@@ -130,6 +123,10 @@ struct EmojiMemoryGameView: View {
     }
 }
 
+
+
 #Preview {
-    EmojiMemoryGameView(viewModel: EmojiMemoryGame())
+    var theme = Theme.builtins.first!
+    var emojiMemoryGame = EmojiMemoryGame(theme: theme)
+    EmojiMemoryGameView(viewModel: emojiMemoryGame)
 }
